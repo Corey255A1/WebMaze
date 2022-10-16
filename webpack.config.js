@@ -1,12 +1,12 @@
 const path = require('path');
 module.exports = {
     entry: {
-        maze2d: './ts/Maze2D.ts',
+        Maze2D: './ts/Maze2DMain.ts',
     },
     output: {
         path: path.resolve(__dirname, 'www/scripts/'),
         filename: '[name].js',
-        library: '[name]'
+        library: '[name]',
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
