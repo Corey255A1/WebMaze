@@ -21,35 +21,36 @@ export class Maze3D{
         const floor = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
         floor.material = this._wall_material;
         floor.position.set(x,0,y);
+        floor.rotate(Axis.X, Math.PI/2);
         let walls:Array<Mesh> = [];
         if(cell.Front == MazeWall){
             const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
             wall.material = this._wall_material;
-            wall.position.set(x,0,y+this._cell_size/2);
-            wall.rotate(Axis.X, Math.PI/2);
+            wall.position.set(x,this._cell_size/2,y+this._cell_size/2);
+            //wall.rotate(Axis.X, Math.PI/2);
             walls.push(wall);
         }
         if(cell.Right == MazeWall){
             const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
             wall.material = this._wall_material;
-            wall.position.set(x+this._cell_size/2,0,y);
-            wall.rotate(Axis.X, Math.PI/2);
+            wall.position.set(x+this._cell_size/2,this._cell_size/2,y);
+            wall.rotate(Axis.Y, Math.PI/2);
             walls.push(wall);
         }
 
         if(cell.Back == MazeWall){
             const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
             wall.material = this._wall_material;
-            wall.position.set(x,0,y-this._cell_size/2);
-            wall.rotate(Axis.X, Math.PI/2);
+            wall.position.set(x,this._cell_size/2,y-this._cell_size/2);
+            wall.rotate(Axis.Y, Math.PI);
             walls.push(wall);
         }
 
         if(cell.Left == MazeWall){
             const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
             wall.material = this._wall_material;
-            wall.position.set(x-this._cell_size/2,0,y);
-            wall.rotate(Axis.X, Math.PI/2);
+            wall.position.set(x-this._cell_size/2,this._cell_size/2,y);
+            wall.rotate(Axis.Y, -Math.PI/2);
             walls.push(wall);
         }
 
