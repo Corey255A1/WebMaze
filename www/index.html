@@ -9,7 +9,6 @@
 <body>
     <canvas id="mazeCanvas" width="480" height="480"></canvas>
     <script src="./scripts/maze2d.js"></script>
-    <script src="./scripts/maze.js"></script>
     <script>
         // class Vector{
         //     constructor(x,y){
@@ -248,7 +247,7 @@
 
 
         const cnv = document.getElementById('mazeCanvas');
-        const maze_grid = maze.Maze.Generate(0,0,100,100);
+        const maze_grid = maze2d.Maze.Generate(0,0,100,100);
         const maze_renderer = new maze2d.Maze2D(cnv, maze_grid);
         maze_renderer.render();
 

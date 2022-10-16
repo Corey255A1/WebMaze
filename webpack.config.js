@@ -1,9 +1,7 @@
 const path = require('path');
 module.exports = {
     entry: {
-        maze3d: './ts/Maze3D.ts',
         maze2d: './ts/Maze2D.ts',
-        maze: './ts/Maze.ts'
     },
     output: {
         path: path.resolve(__dirname, 'www/scripts/'),
@@ -17,6 +15,7 @@ module.exports = {
     plugins: [
 
     ],
+    mode:'development',
     module: {
         rules: [{
             test: /\.tsx?$/,
