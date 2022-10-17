@@ -20,15 +20,15 @@ export class Maze3DMain{
         this._scene = new Scene(this._engine);
         //var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), this._scene);
         //camera.attachControl(this._canvas, true);
-        this._camera = new UniversalCamera("UniversalCamera", new Vector3(1, 1, 1), this._scene); 
+        this._camera = new UniversalCamera("UniversalCamera", new Vector3(0, 10, 0), this._scene); 
 
         // Attach the camera to the canvas
         this._camera.speed = 0.5;
         this._camera.applyGravity = true;
         this._camera.ellipsoid = new Vector3(1.2, 1, 1.2);
-        this._camera.position.y = 5;
-        this._camera.position.x = 5;
-        this._camera.position.z = 5;
+        // this._camera.position.y = 5;
+        // this._camera.position.x = 5;
+        // this._camera.position.z = 5;
         this._camera.checkCollisions = true;
         this._camera.attachControl(this._canvas, true);
 

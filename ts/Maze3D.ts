@@ -14,18 +14,15 @@ export class Maze3D{
         this._wall_material.diffuseColor = new Color3(0.5,0,0);
     }
 
+    //To-Do - Optimize .. Combine walls in like directions
     CreateCell(cell:MazeCell){//:Mesh|null{
-        if(!cell.Connected){ return null; }
+        if(!cell.Connected){ return; }
         const x = this._cell_size*cell.Position.X;
         const y = this._cell_size*cell.Position.Y;
-        const floor = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
-        floor.material = this._wall_material;
-        floor.position.set(x,0,y);
-        floor.rotate(Axis.X, Math.PI/2);
-        floor.checkCollisions = true;
         let walls:Array<Mesh> = [];
         if(cell.Front == MazeWall){
-            const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
             wall.material = this._wall_material;
             wall.position.set(x,this._cell_size/2,y+this._cell_size/2);
             wall.checkCollisions = true;
@@ -33,7 +30,8 @@ export class Maze3D{
             walls.push(wall);
         }
         if(cell.Right == MazeWall){
-            const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
             wall.material = this._wall_material;
             wall.position.set(x+this._cell_size/2,this._cell_size/2,y);
             wall.checkCollisions = true;
@@ -42,7 +40,8 @@ export class Maze3D{
         }
 
         if(cell.Back == MazeWall){
-            const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
             wall.material = this._wall_material;
             wall.position.set(x,this._cell_size/2,y-this._cell_size/2);
             wall.checkCollisions = true;
@@ -51,7 +50,8 @@ export class Maze3D{
         }
 
         if(cell.Left == MazeWall){
-            const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
             wall.material = this._wall_material;
             wall.position.set(x-this._cell_size/2,this._cell_size/2,y);
             wall.checkCollisions = true;
@@ -63,6 +63,12 @@ export class Maze3D{
     }
 
     CreateMaze():Mesh|null{
+
+        const floor = MeshBuilder.CreateGround("floor", {width:this._maze.SizeX*(this._cell_size+1), height:this._maze.SizeY*(this._cell_size+1)})
+        floor.material = this._wall_material;
+        floor.position.set((this._maze.SizeX*this._cell_size)/2,0,(this._maze.SizeY*this._cell_size)/2);
+        floor.checkCollisions = true;
+
         const iterator = this._maze.CellsItr();
         let itr_ptr = iterator.next();
         let cells:Array<Mesh> = [];
