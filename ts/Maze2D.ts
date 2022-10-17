@@ -25,7 +25,7 @@ export class Maze2D{
         return this._context.getImageData(0, 0, this._canvas.width, this._canvas.height);
     }
 
-    renderWall(ctx:CanvasRenderingContext2D, cell:MazeCell){
+    CreateWalls(ctx:CanvasRenderingContext2D, cell:MazeCell){
         if(!cell.Connected){ return; }
         const x = this._wall_width*cell.Position.X;
         const y = this._wall_height*cell.Position.Y;
@@ -52,11 +52,11 @@ export class Maze2D{
         ctx.stroke();
     }
 
-    render(){
+    CreateMaze(){
         const iterator = this._maze.CellsItr();
         let itr_ptr = iterator.next();
         while(itr_ptr.done == false){
-            this.renderWall(this._context, itr_ptr.value);
+            this.CreateWalls(this._context, itr_ptr.value);
             itr_ptr = iterator.next();
         }
     }

@@ -17,7 +17,7 @@ export class Maze2DMain{
         this._maze = Maze.Generate(0,0,100,100);
         if(this._canvas != null){
             this._maze_renderer = new Maze2D(this._canvas, this._maze);
-            this._maze_renderer.render();
+            this._maze_renderer.CreateMaze();
         }
         return this._maze;
     }

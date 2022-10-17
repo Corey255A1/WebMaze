@@ -15,7 +15,7 @@ export class Maze3D{
     }
 
     //To-Do - Optimize .. Combine walls in like directions
-    CreateCell(cell:MazeCell){//:Mesh|null{
+    CreateWalls(cell:MazeCell){//:Mesh|null{
         if(!cell.Connected){ return; }
         const x = this._cell_size*cell.Position.X;
         const y = this._cell_size*cell.Position.Y;
@@ -74,7 +74,7 @@ export class Maze3D{
         let cells:Array<Mesh> = [];
         while(itr_ptr.done == false){
             //const cell:Mesh|null = this.CreateCell(itr_ptr.value);
-            this.CreateCell(itr_ptr.value);
+            this.CreateWalls(itr_ptr.value);
             // if(cell != null){
             //     cell.checkCollisions = true;
             //     cells.push(cell);
