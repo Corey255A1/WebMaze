@@ -1,22 +1,24 @@
 import { Maze } from "./Maze";
-import { Axis, Color3, Material, Mesh, MeshBuilder, Scene, StandardMaterial } from "babylonjs";
+import { Axis, Color3, Material, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "babylonjs";
 import { MazeCell, MazeWall } from "./MazeCell";
 export class Maze3D{
     private _maze:Maze;
     private _scene:Scene;
     private _cell_size:number;
     private _wall_material:StandardMaterial;
+    private _walls:Map<MazeCell, Array<Mesh>>;
     constructor(scene:Scene, maze:Maze, size:number){
         this._maze = maze;
         this._scene = scene;
         this._cell_size = size;
         this._wall_material = new StandardMaterial("wall_mat", this._scene);
         this._wall_material.diffuseColor = new Color3(0.5,0,0);
+        this._walls = new Map<MazeCell, Array<Mesh>>();
     }
 
     //To-Do - Optimize .. Combine walls in like directions
-    CreateWalls(cell:MazeCell){//:Mesh|null{
-        if(!cell.Connected){ return; }
+    CreateWalls(cell:MazeCell):Array<Mesh> | null{//:Mesh|null{
+        if(!cell.Connected){ return null; }
         const x = this._cell_size*cell.Position.X;
         const y = this._cell_size*cell.Position.Y;
         let walls:Array<Mesh> = [];
@@ -58,8 +60,15 @@ export class Maze3D{
             wall.rotate(Axis.Y, -Math.PI/2);
             walls.push(wall);
         }
-
+        return walls;
         //return Mesh.MergeMeshes(walls);
+    }
+
+    GetWalls(position:Vector3):Array<Mesh> | null{
+        const cell = this._maze.GetCellXY(Math.round(position.x/this._cell_size), Math.round(position.z/this._cell_size));
+        if(cell == null) return null;
+        const walls = this._walls.get(cell);
+        return walls == undefined ? null : walls;
     }
 
     CreateMaze():Mesh|null{
@@ -74,7 +83,10 @@ export class Maze3D{
         let cells:Array<Mesh> = [];
         while(itr_ptr.done == false){
             //const cell:Mesh|null = this.CreateCell(itr_ptr.value);
-            this.CreateWalls(itr_ptr.value);
+            const walls:Array<Mesh>|null = this.CreateWalls(itr_ptr.value);
+            if(walls != null){
+                this._walls.set(itr_ptr.value, walls);
+            }
             // if(cell != null){
             //     cell.checkCollisions = true;
             //     cells.push(cell);

@@ -20,14 +20,25 @@ export class Maze3DMain{
 
         this._engine = new Engine(this._canvas, true);
         this._scene = new Scene(this._engine);
-        this._player = new Maze3DPlayer();
+        this._maze = Maze.Generate(0,0,20,20);
+        
+        
+
+
+        //var sanitycheck = MeshBuilder.CreateBox('box1',{size:2});
+        var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), this._scene);
+        
+        this._maze_renderer = new Maze3D(this._scene, this._maze, 10);
+        this._maze_mesh = this._maze_renderer.CreateMaze();
+        this._player = new Maze3DPlayer(this._maze_renderer);
+        this._scene.onKeyboardObservable.add(this._player.ProcessKeyboard.bind(this._player))
+        this._scene.onBeforeRenderObservable.add(this._player.Update.bind(this._player));
         this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
         this._camera.attachControl(this._canvas, true);
         //this._camera = new UniversalCamera("UniversalCamera", new Vector3(0, 10, 0), this._scene);
 
         
-        this._scene.onKeyboardObservable.add(this._player.ProcessKeyboard.bind(this._player))
-        this._scene.onBeforeRenderObservable.add(this._player.Update.bind(this._player));
+       
         // Attach the camera to the canvas
         this._camera.speed = 0.5;
         //this._camera.applyGravity = true;
@@ -37,13 +48,6 @@ export class Maze3DMain{
         // this._camera.position.z = 5;
         this._camera.checkCollisions = true;
         this._camera.attachControl(this._canvas, true);
-
-
-        //var sanitycheck = MeshBuilder.CreateBox('box1',{size:2});
-        var light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), this._scene);
-        this._maze = Maze.Generate(0,0,20,20);
-        this._maze_renderer = new Maze3D(this._scene, this._maze, 10);
-        this._maze_mesh = this._maze_renderer.CreateMaze();
         //if(this._maze_mesh == null){ throw "Error Creating Maze"; }
         //this._maze_mesh.checkCollisions = true;
 
