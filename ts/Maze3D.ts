@@ -76,7 +76,9 @@ export class Maze3D{
         const floor = MeshBuilder.CreateGround("floor", {width:this._maze.SizeX*(this._cell_size+1), height:this._maze.SizeY*(this._cell_size+1)})
         floor.material = this._wall_material;
         floor.position.set((this._maze.SizeX*this._cell_size)/2,0,(this._maze.SizeY*this._cell_size)/2);
-        floor.checkCollisions = true;
+        let floor_material = new StandardMaterial("floor_mat", this._scene);
+        floor_material.diffuseColor = new Color3(0.1,0.1,0.1);
+        floor.material = floor_material;
 
         const iterator = this._maze.CellsItr();
         let itr_ptr = iterator.next();
