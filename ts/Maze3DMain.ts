@@ -1,4 +1,4 @@
-import { ArcRotateCamera, DirectionalLight, Engine, FollowCamera, HemisphericLight, Mesh, MeshBuilder, RuntimeError, Scene, UniversalCamera, Vector3 } from "babylonjs";
+import { ArcRotateCamera, DirectionalLight, Engine, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, RuntimeError, Scene, UniversalCamera, Vector3 } from "babylonjs";
 import { Maze } from "./Maze";
 import { Maze3D } from "./Maze3D";
 import { Maze3DPlayer } from "./Maze3DPlayer";
@@ -23,7 +23,7 @@ export class Maze3DMain{
         this._scene = new Scene(this._engine);
         this._maze = Maze.Generate(0,0,20,20);
         
-        
+        window.addEventListener('resize',()=>{this._engine.resize();})
 
 
         //var sanitycheck = MeshBuilder.CreateBox('box1',{size:2});
@@ -32,7 +32,7 @@ export class Maze3DMain{
         this._maze_renderer = new Maze3D(this._scene, this._maze, 10);
         this._maze_mesh = this._maze_renderer.CreateMaze();
         this._player = new Maze3DPlayer(this._maze_renderer);
-        this._scene.onKeyboardObservable.add(this._player.ProcessKeyboard.bind(this._player))
+        this._scene.onKeyboardObservable.add(this.ProcessKeyboard.bind(this));
         this._scene.onBeforeRenderObservable.add(this._player.Update.bind(this._player));
         this._camera = new FollowCamera("Camera", this._player.Mesh.position);
         this._camera.heightOffset = 15;
@@ -62,5 +62,17 @@ export class Maze3DMain{
         this._engine.runRenderLoop(() => {
             this._scene.render();
         });
+    }
+
+    
+    //Generalize the inputs
+    public ProcessKeyboard(keyboard_info:KeyboardInfo){
+        const keydown:boolean = keyboard_info.type == KeyboardEventTypes.KEYDOWN;
+        switch(keyboard_info.event.key.toLowerCase()){
+            case "w":this._player.Input.SetDigital("up", keydown); break;
+            case "d":this._player.Input.SetDigital("right", keydown); break;
+            case "s":this._player.Input.SetDigital("down", keydown); break;
+            case "a":this._player.Input.SetDigital("left", keydown); break;
+        }
     }
 }
