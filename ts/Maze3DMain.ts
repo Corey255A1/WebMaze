@@ -10,9 +10,9 @@ export class Maze3DMain{
     private _scene:Scene;
     private _engine:Engine;
     private _canvas:HTMLCanvasElement;
-    //private _camera:UniversalCamera;
+    private _camera:UniversalCamera;
     //private _camera:ArcRotateCamera;
-    private _camera:FollowCamera;
+    //private _camera:FollowCamera;
     private _player:Maze3DPlayer;
     constructor(canvas_id:string){
         this._canvas = document.getElementById(canvas_id) as HTMLCanvasElement;
@@ -34,20 +34,28 @@ export class Maze3DMain{
         this._player = new Maze3DPlayer(this._maze_renderer);
         this._scene.onKeyboardObservable.add(this.ProcessKeyboard.bind(this));
         this._scene.onBeforeRenderObservable.add(this._player.Update.bind(this._player));
+        //Follow Camera
+        /*
         this._camera = new FollowCamera("Camera", this._player.Mesh.position);
         this._camera.heightOffset = 15;
-        //this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
-        //this._camera.attachControl(this._canvas, true);
-        //this._camera = new UniversalCamera("UniversalCamera", new Vector3(0, 10, 0), this._scene);
-
-        
-       
-        // Attach the camera to the canvas
         this._camera.speed = 0.5;
         this._camera.radius = 5;
         this._camera.rotationOffset = 90;
         this._camera.attachControl(true);
         this._camera.lockedTarget = this._player.Mesh;
+        */
+        //Arc Rotate
+        /*
+        this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
+        this._camera.attachControl(this._canvas, true);
+        //this._camera.lowerRadiusLimit = 2;
+        //this._camera.upperRadiusLimit = 2;
+        */
+        this._camera = new UniversalCamera("first_person", this._player.Mesh.position, this._scene);
+
+        
+        // Attach the camera to the canvas
+        
         //this._camera.applyGravity = true;
         //this._camera.ellipsoid = new Vector3(1.2, 1, 1.2);
         // this._camera.position.y = 5;

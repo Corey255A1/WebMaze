@@ -22,6 +22,8 @@ export class Maze3DPlayer{
         this._inputs.AddDigital("down", false);
         this._inputs.AddDigital("left", false);
         this._inputs.AddDigital("right", false);
+        this._inputs.AddDigital("turnleft", false);
+        this._inputs.AddDigital("turnright", false);
         this._inputs.SetDigitalChangeCallback(this.DigitalInputChanged.bind(this));
     }
     
@@ -47,7 +49,15 @@ export class Maze3DPlayer{
     public Update(scene:Scene, event:EventState){
         
         if(scene.activeCamera != null){
-            const forward_vector = this._mesh.position.subtract(scene.activeCamera.position);
+            let forward_vector:Vector3;
+
+            if(scene.activeCamera.name == "first_person"){
+                forward_vector = scene.activeCamera.getDirection(Axis.Z);
+
+            }else{
+                forward_vector = this._mesh.position.subtract(scene.activeCamera.position);
+                
+            }
             forward_vector.y = 0;
             const side_vector = forward_vector.cross(Axis.Y);
             forward_vector.scaleInPlace(this._input_direction.x);
@@ -55,6 +65,7 @@ export class Maze3DPlayer{
             
             this._velocity = forward_vector.add(side_vector);
             this._velocity.normalize().scaleInPlace(this._speed);
+            
         }
         
         const next = this._mesh.position.add(this._velocity);
