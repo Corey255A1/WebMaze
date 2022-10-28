@@ -16,6 +16,11 @@ module.exports = {
     plugins: [
 
     ],
+    devServer: {
+        static:{
+            directory: "./www"
+        }
+    },
     mode:'development',
     module: {
         rules: [{

@@ -43,29 +43,6 @@ export class Maze3DPlayer{
         return this._mesh;
     }
 
-    
-
-    //Generalize the inputs
-    public ProcessKeyboard(keyboard_info:KeyboardInfo){
-        switch(keyboard_info.type){
-            case KeyboardEventTypes.KEYDOWN:{
-                switch(keyboard_info.event.key.toLowerCase()){
-                    case "w":this._input_direction.x = this._speed; break;
-                    case "d":this._input_direction.z = -this._speed; break;
-                    case "s":this._input_direction.x = -this._speed; break;
-                    case "a":this._input_direction.z = this._speed; break;
-                }
-            } break;
-            case KeyboardEventTypes.KEYUP:{
-                switch(keyboard_info.event.key.toLowerCase()){
-                    case "w":this._input_direction.x = 0; break;
-                    case "d":this._input_direction.z = 0; break;
-                    case "s":this._input_direction.x = 0; break;
-                    case "a":this._input_direction.z = 0; break;
-                }
-            } break;
-        }
-    }
 
     public Update(scene:Scene, event:EventState){
         

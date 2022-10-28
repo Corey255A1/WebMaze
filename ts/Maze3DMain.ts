@@ -1,4 +1,4 @@
-import { ArcRotateCamera, DirectionalLight, Engine, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, RuntimeError, Scene, UniversalCamera, Vector3 } from "babylonjs";
+import { ArcRotateCamera, DirectionalLight, Engine, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, RuntimeError, Scene, UniversalCamera, Vector3, WebXRState } from "babylonjs";
 import { Maze } from "./Maze";
 import { Maze3D } from "./Maze3D";
 import { Maze3DPlayer } from "./Maze3DPlayer";
@@ -62,6 +62,7 @@ export class Maze3DMain{
         this._engine.runRenderLoop(() => {
             this._scene.render();
         });
+        this.InitializeVR();
     }
 
     
@@ -73,6 +74,30 @@ export class Maze3DMain{
             case "d":this._player.Input.SetDigital("right", keydown); break;
             case "s":this._player.Input.SetDigital("down", keydown); break;
             case "a":this._player.Input.SetDigital("left", keydown); break;
+        }
+    }
+
+    private async InitializeVR(){
+        try {
+            var defaultXRExperience = await this._scene.createDefaultXRExperienceAsync();
+            defaultXRExperience.baseExperience.onStateChangedObservable.add((state) => {
+                switch (state) {
+                    case WebXRState.IN_XR: 
+                    defaultXRExperience.baseExperience.camera.position = Vector3.Zero();
+                    break;
+                        // XR is initialized and already submitted one frame
+                    case WebXRState.ENTERING_XR: 
+                        
+                        break;
+                        // xr is being initialized, enter XR request was made
+                    case WebXRState.EXITING_XR: break;
+                        // xr exit request was made. not yet done.
+                    case WebXRState.NOT_IN_XR: break;
+                        // self explanatory - either out or not yet in XR
+                }
+            })
+        } catch (e) {
+            console.log(e);
         }
     }
 }
