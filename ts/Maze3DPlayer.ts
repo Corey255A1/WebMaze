@@ -1,4 +1,4 @@
-import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Scene, Vector3 } from "babylonjs";
+import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Scene, UniversalCamera, Vector3 } from "babylonjs";
 import { Maze3D } from "./Maze3D";
 import { PlayerInputs } from "./PlayerInputs";
 
@@ -6,6 +6,7 @@ export class Maze3DPlayer{
     private _mesh:Mesh;
     private _speed:number;
     private _input_direction:Vector3;
+    private _input_turn:number;
     private _velocity:Vector3;
     private _maze:Maze3D;
     private _inputs:PlayerInputs;
@@ -16,6 +17,7 @@ export class Maze3DPlayer{
         this._speed = 0.4;
         this._velocity = new Vector3(0,0,0);
         this._input_direction = new Vector3(0,0,0);
+        this._input_turn = 0;
         this._maze = maze;
         this._inputs = new PlayerInputs();
         this._inputs.AddDigital("up", false);
@@ -29,10 +31,12 @@ export class Maze3DPlayer{
     
     private DigitalInputChanged(name:string, value:boolean){
         switch(name){
-            case "up": this._input_direction.x = (value ? 1 : 0); break;
-            case "down":  this._input_direction.x = (value ? -1 : 0); break;
-            case "left":  this._input_direction.z = (value ? 1 : 0); break;
-            case "right":this._input_direction.z = (value ? -1 : 0); break;
+            case "up":      this._input_direction.x = (value ? 1 : 0); break;
+            case "down":    this._input_direction.x = (value ? -1 : 0); break;
+            case "left":    this._input_direction.z = (value ? 1 : 0); break;
+            case "right":   this._input_direction.z = (value ? -1 : 0); break;
+            case "turnleft" : this._input_turn = (value ? -0.05 : 0); break;
+            case "turnright" : this._input_turn = (value ? 0.05 : 0); break;
         }
     }
 
@@ -52,6 +56,8 @@ export class Maze3DPlayer{
             let forward_vector:Vector3;
 
             if(scene.activeCamera.name == "first_person"){
+                const camera = scene.activeCamera as UniversalCamera;
+                camera.rotation.y += this._input_turn;
                 forward_vector = scene.activeCamera.getDirection(Axis.Z);
 
             }else{

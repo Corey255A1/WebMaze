@@ -19,7 +19,8 @@ module.exports = {
     devServer: {
         static:{
             directory: "./www"
-        }
+        },
+        hot: false
     },
     mode:'development',
     module: {

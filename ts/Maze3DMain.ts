@@ -82,6 +82,8 @@ export class Maze3DMain{
             case "d":this._player.Input.SetDigital("right", keydown); break;
             case "s":this._player.Input.SetDigital("down", keydown); break;
             case "a":this._player.Input.SetDigital("left", keydown); break;
+            case "i":this._player.Input.SetDigital("turnleft", keydown); break;
+            case "p":this._player.Input.SetDigital("turnright", keydown); break;
         }
     }
 
