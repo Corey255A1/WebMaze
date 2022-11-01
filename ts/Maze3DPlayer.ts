@@ -1,4 +1,4 @@
-import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Scene, UniversalCamera, Vector3 } from "babylonjs";
+import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Ray, Scene, UniversalCamera, Vector3 } from "babylonjs";
 import { Maze3D } from "./Maze3D";
 import { PlayerInputs } from "./PlayerInputs";
 
@@ -69,17 +69,28 @@ export class Maze3DPlayer{
             forward_vector.scaleInPlace(this._input_direction.x);
             side_vector.scaleInPlace(this._input_direction.z);
             
-            this._velocity = forward_vector.add(side_vector);
+            this._velocity.copyFrom(forward_vector.addInPlace(side_vector));
             this._velocity.normalize().scaleInPlace(this._speed);
-            
         }
         
+        //Check that we aren't moving into something
+        let ray = new Ray(this._mesh.position,this._velocity, 8);
+        const mesh = scene.pickWithRay(ray,(m)=>m!=this._mesh);
+        if(mesh != null && mesh.pickedMesh != null){
+            return; // don't move
+        }
+
+        //Check that we havent somehow wound up in a wall
         const next = this._mesh.position.add(this._velocity);
         const walls = this._maze.GetWalls(next);
         if(walls != null){
             const wall = walls.find(wall=>wall.intersectsPoint(next));
-            if(wall != undefined){ return; }
+            if(wall != undefined){
+                return; //don't move
+            }
         }
+
+        //Move our mesh
         this._mesh.position.addInPlace(this._velocity);
     }
 
