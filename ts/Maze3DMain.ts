@@ -45,14 +45,15 @@ export class Maze3DMain{
         this._camera.lockedTarget = this._player.Mesh;
         */
         //Arc Rotate
-        /*
-        this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
-        this._camera.attachControl(this._canvas, true);
-        //this._camera.lowerRadiusLimit = 2;
-        //this._camera.upperRadiusLimit = 2;
-        */
-        this._camera = new UniversalCamera("first_person", this._player.Mesh.position, this._scene);
-
+        
+        // this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
+        // this._camera.attachControl(this._canvas, true);
+        // this._camera.lowerRadiusLimit = 2;
+        // this._camera.upperRadiusLimit = 2;
+        
+        //Give the Camera its own position since we are setting its parent to the mesh...
+        this._camera = new UniversalCamera("first_person", this._player.Mesh.position.clone(), this._scene);
+        this._camera.parent = this._player.Mesh;
         
         // Attach the camera to the canvas
         
@@ -78,12 +79,12 @@ export class Maze3DMain{
     public ProcessKeyboard(keyboard_info:KeyboardInfo){
         const keydown:boolean = keyboard_info.type == KeyboardEventTypes.KEYDOWN;
         switch(keyboard_info.event.key.toLowerCase()){
-            case "w":this._player.Input.SetDigital("up", keydown); break;
-            case "d":this._player.Input.SetDigital("right", keydown); break;
-            case "s":this._player.Input.SetDigital("down", keydown); break;
-            case "a":this._player.Input.SetDigital("left", keydown); break;
-            case "i":this._player.Input.SetDigital("turnleft", keydown); break;
-            case "p":this._player.Input.SetDigital("turnright", keydown); break;
+            case "w":this._player.MoveForward(keydown); break;
+            case "d":this._player.MoveRight(keydown); break;
+            case "s":this._player.MoveBackward(keydown); break;
+            case "a":this._player.MoveLeft(keydown); break;
+            case "i":this._player.TurnLeft(keydown); break;
+            case "p":this._player.TurnRight(keydown); break;
         }
     }
 

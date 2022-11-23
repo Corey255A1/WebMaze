@@ -1,80 +1,87 @@
 import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Ray, Scene, UniversalCamera, Vector3 } from "babylonjs";
 import { Maze3D } from "./Maze3D";
-import { PlayerInputs } from "./PlayerInputs";
 
-export class Maze3DPlayer{
+export class Maze3DPlayer {
     private _mesh:Mesh;
-    private _speed:number;
-    private _input_direction:Vector3;
-    private _input_turn:number;
     private _velocity:Vector3;
+    private _move:Vector3;
+    private _rotate:Vector3;
     private _maze:Maze3D;
-    private _inputs:PlayerInputs;
+    private _speed:number;
 
     constructor(maze:Maze3D){
-        this._mesh = MeshBuilder.CreateSphere('player',{diameter:1});
-        this._mesh.position.y = 2;
         this._speed = 0.4;
+        this._mesh = MeshBuilder.CreateBox('player',{size:1})//MeshBuilder.CreateSphere('player',{diameter:1});
+        this._mesh.position.y = 2;
+        this._rotate = new Vector3(0,0,0);
+        this._move = new Vector3(0,0,0);
         this._velocity = new Vector3(0,0,0);
-        this._input_direction = new Vector3(0,0,0);
-        this._input_turn = 0;
         this._maze = maze;
-        this._inputs = new PlayerInputs();
-        this._inputs.AddDigital("up", false);
-        this._inputs.AddDigital("down", false);
-        this._inputs.AddDigital("left", false);
-        this._inputs.AddDigital("right", false);
-        this._inputs.AddDigital("turnleft", false);
-        this._inputs.AddDigital("turnright", false);
-        this._inputs.SetDigitalChangeCallback(this.DigitalInputChanged.bind(this));
     }
-    
-    private DigitalInputChanged(name:string, value:boolean){
-        switch(name){
-            case "up":      this._input_direction.x = (value ? 1 : 0); break;
-            case "down":    this._input_direction.x = (value ? -1 : 0); break;
-            case "left":    this._input_direction.z = (value ? 1 : 0); break;
-            case "right":   this._input_direction.z = (value ? -1 : 0); break;
-            case "turnleft" : this._input_turn = (value ? -0.05 : 0); break;
-            case "turnright" : this._input_turn = (value ? 0.05 : 0); break;
-        }
-    }
-
-    public get Input():PlayerInputs{
-        return this._inputs;
-    }
-
 
     public get Mesh():Mesh{
         return this._mesh;
     }
 
+    public MoveForward(move:boolean){
+        this._move.x = move ? 1 : 0;
+    }
+    public MoveBackward(move:boolean){
+        this._move.x = move ? -1 : 0;
+    }
+    public MoveRight(move:boolean){
+        this._move.z = move ? 1 : 0;
+    }
+    public MoveLeft(move:boolean){
+        this._move.z = move ? -1 : 0;
+    }
+    public TurnRight(move:boolean){
+        this._rotate.y = move ? 1 : 0;
+    }
+    public TurnLeft(move:boolean){
+        this._rotate.y = move ? -1 : 0;
+    }
+
+
+    private ApplyMove(){
+        this._velocity.setAll(0);
+        if(this._move.x != 0){
+            this._velocity.addInPlace(this._mesh.forward.scale(this._move.x));
+        }
+        if(this._move.y != 0){
+            this._velocity.addInPlace(this._mesh.up.scale(this._move.y));
+        }
+        if(this._move.z != 0){
+            this._velocity.addInPlace(this._mesh.right.scale(this._move.z));
+        }
+        this._velocity.normalize().scale(this._speed);
+        //console.log(this._velocity);
+    }
+
+    private ApplyRotations(){
+        //Yaw
+        if(this._rotate.y != 0){
+            this._mesh.rotate(this._mesh.up, 0.1 * this._rotate.y, BABYLON.Space.WORLD);
+        }
+        //Pitch
+        if(this._rotate.z != 0){
+            this._mesh.rotate(this._mesh.right, 0.1 * this._rotate.z, BABYLON.Space.WORLD);
+        }
+        //Roll
+        if(this._rotate.x != 0){
+            this._mesh.rotate(this._mesh.forward, 0.1 * this._rotate.x, BABYLON.Space.WORLD);
+        }
+    }
+
+
 
     public Update(scene:Scene, event:EventState){
+        this.ApplyRotations();
+        this.ApplyMove();
         
-        if(scene.activeCamera != null){
-            let forward_vector:Vector3;
-
-            if(scene.activeCamera.name == "first_person"){
-                const camera = scene.activeCamera as UniversalCamera;
-                camera.rotation.y += this._input_turn;
-                forward_vector = scene.activeCamera.getDirection(Axis.Z);
-
-            }else{
-                forward_vector = this._mesh.position.subtract(scene.activeCamera.position);
-                
-            }
-            forward_vector.y = 0;
-            const side_vector = forward_vector.cross(Axis.Y);
-            forward_vector.scaleInPlace(this._input_direction.x);
-            side_vector.scaleInPlace(this._input_direction.z);
-            
-            this._velocity.copyFrom(forward_vector.addInPlace(side_vector));
-            this._velocity.normalize().scaleInPlace(this._speed);
-        }
         
         //Check that we aren't moving into something
-        let ray = new Ray(this._mesh.position,this._velocity, 8);
+        let ray = new Ray(this._mesh.position,this._velocity, 3);
         const mesh = scene.pickWithRay(ray,(m)=>m!=this._mesh);
         if(mesh != null && mesh.pickedMesh != null){
             return; // don't move
@@ -91,7 +98,7 @@ export class Maze3DPlayer{
         }
 
         //Move our mesh
-        this._mesh.position.addInPlace(this._velocity);
+        this._mesh.position.copyFrom(next);
     }
 
 }
