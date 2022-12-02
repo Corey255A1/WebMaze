@@ -103,9 +103,9 @@ export class Maze3DMain{
             }
             if(senors[0].Distance > 5){
                 
-                if(senors[1].Distance < 1){
+                if(senors[1].Distance < 2){
                     this._player.TurnLeft(true);
-                }else if(senors[3].Distance < 1){
+                }else if(senors[3].Distance < 2){
                     this._player.TurnRight(true);
                 }
 

@@ -14,7 +14,7 @@ export class Sensor{
         this._ray = new Ray(mesh.position.add(offset), relative_direction, max_range);
         
         const ray_helper  = new RayHelper(this._ray);        
-        ray_helper.show(this._mesh.getScene());
+       // ray_helper.show(this._mesh.getScene());
     }
     public get Distance():number{
         if(this._last_picked != null && this._last_picked.hit){ return this._last_picked.distance; }

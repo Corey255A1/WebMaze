@@ -12,8 +12,8 @@ export class Maze3DPlayer {
     private _sensors: Array<Sensor>;
 
     constructor(maze: Maze3D) {
-        this._speed = 0.2;
-        this._rotation_speed = 0.05;
+        this._speed = 0.5;
+        this._rotation_speed = 0.2;
         this._mesh = MeshBuilder.CreateBox('player', { size: 1 })//MeshBuilder.CreateSphere('player',{diameter:1});
         this._mesh.position.y = 2;
         this._rotate = new Vector3(0, 0, 0);
