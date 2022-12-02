@@ -1,8 +1,8 @@
-import { ArcRotateCamera, DirectionalLight, Engine, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, RuntimeError, Scene, UniversalCamera, Vector3, WebXRState } from "babylonjs";
+import { ArcRotateCamera, DirectionalLight, Engine, EventState, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Ray, RuntimeError, Scene, TubeBuilder, UniversalCamera, Vector3, WebXRState } from "babylonjs";
 import { Maze } from "./Maze";
 import { Maze3D } from "./Maze3D";
 import { Maze3DPlayer } from "./Maze3DPlayer";
-
+import { Sensor } from "./Sensor";
 export class Maze3DMain{
     private _maze:Maze | null;
     private _maze_renderer:Maze3D | null;
@@ -10,11 +10,12 @@ export class Maze3DMain{
     private _scene:Scene;
     private _engine:Engine;
     private _canvas:HTMLCanvasElement;
-    private _camera:UniversalCamera;
-    //private _camera:ArcRotateCamera;
+    //private _camera:UniversalCamera;
+    private _camera:ArcRotateCamera;
     //private _camera:FollowCamera;
     private _player:Maze3DPlayer;
     constructor(canvas_id:string){
+        
         this._canvas = document.getElementById(canvas_id) as HTMLCanvasElement;
         if(this._canvas == null){ throw "Could not find canvas"; }
 
@@ -32,8 +33,9 @@ export class Maze3DMain{
         this._maze_renderer = new Maze3D(this._scene, this._maze, 10);
         this._maze_mesh = this._maze_renderer.CreateMaze();
         this._player = new Maze3DPlayer(this._maze_renderer);
+        
         this._scene.onKeyboardObservable.add(this.ProcessKeyboard.bind(this));
-        this._scene.onBeforeRenderObservable.add(this._player.Update.bind(this._player));
+        this._scene.onBeforeRenderObservable.add(this.Update.bind(this));
         //Follow Camera
         /*
         this._camera = new FollowCamera("Camera", this._player.Mesh.position);
@@ -46,15 +48,15 @@ export class Maze3DMain{
         */
         //Arc Rotate
         
-        // this._camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, this._player.Mesh.position, this._scene);
-        // this._camera.attachControl(this._canvas, true);
-        // this._camera.lowerRadiusLimit = 2;
-        // this._camera.upperRadiusLimit = 2;
+        this._camera = new ArcRotateCamera("Camera", Math.PI / 2, -Math.PI, 15, this._player.Mesh.position, this._scene);
+        this._camera.attachControl(this._canvas, true);
+        this._camera.lowerRadiusLimit = 10;
+        this._camera.upperRadiusLimit = 20;
         
         //Give the Camera its own position since we are setting its parent to the mesh...
-        this._camera = new UniversalCamera("first_person", this._player.Mesh.position.clone(), this._scene);
-        this._camera.parent = this._player.Mesh;
-        
+        //this._camera = new UniversalCamera("first_person", this._player.Mesh.position.clone(), this._scene);
+        //this._camera.parent = this._player.Mesh;
+
         // Attach the camera to the canvas
         
         //this._camera.applyGravity = true;
@@ -86,6 +88,41 @@ export class Maze3DMain{
             case "i":this._player.TurnLeft(keydown); break;
             case "p":this._player.TurnRight(keydown); break;
         }
+    }
+    
+    private Update(scene:Scene, event:EventState){
+        if(this._maze_renderer != null){
+            const next = this._player.CalculateNextPosition();
+            const senors = this._player.Sensors;
+            if(senors[1].Distance > 5){
+                this._player.TurnRight(true);
+            }
+            else if(senors[1].Distance >= senors[2].Distance - 0.1 || senors[1].Distance <= senors[2].Distance + 0.1)
+            {
+                this._player.TurnRight(false);
+            }
+            if(senors[0].Distance > 5){
+                
+                if(senors[1].Distance < 1){
+                    this._player.TurnLeft(true);
+                }else if(senors[3].Distance < 1){
+                    this._player.TurnRight(true);
+                }
+
+                this._player.MoveForward(true);
+                
+            }else{
+                this._player.TurnLeft(true);
+                this._player.MoveForward(false);
+            }
+            //let ray = new Ray(this._player.Position,this._player.Velocity, 1.5);
+            //const mesh = scene.pickWithRay(ray,(m)=>m!=this._player.Mesh);
+            // if(mesh != null && mesh.pickedMesh != null){
+            //     this._player.Velocity = Vector3.Zero();
+            // }
+            this._player.Update(scene);
+        }
+
     }
 
     private async InitializeVR(){

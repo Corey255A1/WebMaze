@@ -17,11 +17,11 @@ export class Sensor{
         ray_helper.show(this._mesh.getScene());
     }
     public get Distance():number{
-        if(this._last_picked!=null){ return this._last_picked.distance; }
+        if(this._last_picked != null && this._last_picked.hit){ return this._last_picked.distance; }
         else return this._ray.length;
     }
     private FilterMesh(mesh:AbstractMesh):boolean{
-        return this._mesh != mesh;
+        return mesh.name != 'ray' && this._mesh != mesh;
     }
     public Update(scene:Scene){
         this._mesh.computeWorldMatrix(true);

@@ -24,7 +24,7 @@ export class Maze3D{
         let walls:Array<Mesh> = [];
         if(cell.Front == MazeWall){
             //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
-            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5});
             wall.material = this._wall_material;
             wall.position.set(x,this._cell_size/2,y+this._cell_size/2);
             wall.checkCollisions = true;
@@ -33,7 +33,7 @@ export class Maze3D{
         }
         if(cell.Right == MazeWall){
             //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
-            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5});
             wall.material = this._wall_material;
             wall.position.set(x+this._cell_size/2,this._cell_size/2,y);
             wall.checkCollisions = true;
@@ -43,7 +43,7 @@ export class Maze3D{
 
         if(cell.Back == MazeWall){
             //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
-            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5});
             wall.material = this._wall_material;
             wall.position.set(x,this._cell_size/2,y-this._cell_size/2);
             wall.checkCollisions = true;
@@ -53,7 +53,7 @@ export class Maze3D{
 
         if(cell.Left == MazeWall){
             //const wall = MeshBuilder.CreatePlane("wall",{size:this._cell_size});
-            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5})
+            const wall = MeshBuilder.CreateBox("wall", {width:this._cell_size+0.5,height:this._cell_size+0.5,depth:0.5});
             wall.material = this._wall_material;
             wall.position.set(x-this._cell_size/2,this._cell_size/2,y);
             wall.checkCollisions = true;

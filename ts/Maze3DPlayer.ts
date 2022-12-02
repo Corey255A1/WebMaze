@@ -1,104 +1,105 @@
 import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Ray, Scene, UniversalCamera, Vector3 } from "babylonjs";
 import { Maze3D } from "./Maze3D";
+import { Sensor } from "./Sensor";
 
 export class Maze3DPlayer {
-    private _mesh:Mesh;
-    private _velocity:Vector3;
-    private _move:Vector3;
-    private _rotate:Vector3;
-    private _maze:Maze3D;
-    private _speed:number;
+    private _mesh: Mesh;
+    private _velocity: Vector3;
+    private _move: Vector3;
+    private _rotate: Vector3;
+    private _speed: number;
+    private _rotation_speed: number
+    private _sensors: Array<Sensor>;
 
-    constructor(maze:Maze3D){
-        this._speed = 0.4;
-        this._mesh = MeshBuilder.CreateBox('player',{size:1})//MeshBuilder.CreateSphere('player',{diameter:1});
+    constructor(maze: Maze3D) {
+        this._speed = 0.2;
+        this._rotation_speed = 0.05;
+        this._mesh = MeshBuilder.CreateBox('player', { size: 1 })//MeshBuilder.CreateSphere('player',{diameter:1});
         this._mesh.position.y = 2;
-        this._rotate = new Vector3(0,0,0);
-        this._move = new Vector3(0,0,0);
-        this._velocity = new Vector3(0,0,0);
-        this._maze = maze;
-    }
+        this._rotate = new Vector3(0, 0, 0);
+        this._move = new Vector3(0, 0, 0);
+        this._velocity = new Vector3(0, 0, 0);
+        this._sensors = [
+            //Front
+            new Sensor(this._mesh, new Vector3(0, 0, 0), new Vector3(0, 0, 1), 6),
 
-    public get Mesh():Mesh{
+            //Right
+            new Sensor(this._mesh, new Vector3(-0.5, 0, 0.5), new Vector3(1, 0, 0), 6),
+            new Sensor(this._mesh, new Vector3(-0.5, 0, -0.5), new Vector3(1, 0, 0), 6),
+
+            //Left
+            new Sensor(this._mesh, new Vector3(0.5, 0, 0.5), new Vector3(-1, 0, 0), 6),
+            new Sensor(this._mesh, new Vector3(0.5, 0, -0.5), new Vector3(-1, 0, 0), 6),
+        ];
+    }
+    public get Sensors(): Array<Sensor> { return this._sensors; }
+    public get Position(): Vector3 { return this._mesh.position; }
+    public get Velocity(): Vector3 { return this._velocity; }
+    public set Velocity(value: Vector3) { this._velocity.copyFrom(value); }
+    public get Mesh(): Mesh {
         return this._mesh;
     }
 
-    public MoveForward(move:boolean){
+    public MoveForward(move: boolean) {
         this._move.x = move ? 1 : 0;
     }
-    public MoveBackward(move:boolean){
+    public MoveBackward(move: boolean) {
         this._move.x = move ? -1 : 0;
     }
-    public MoveRight(move:boolean){
+    public MoveRight(move: boolean) {
         this._move.z = move ? 1 : 0;
     }
-    public MoveLeft(move:boolean){
+    public MoveLeft(move: boolean) {
         this._move.z = move ? -1 : 0;
     }
-    public TurnRight(move:boolean){
+    public TurnRight(move: boolean) {
         this._rotate.y = move ? 1 : 0;
     }
-    public TurnLeft(move:boolean){
+    public TurnLeft(move: boolean) {
         this._rotate.y = move ? -1 : 0;
     }
 
 
-    private ApplyMove(){
+    private UpdateRelativeMovement() {
         this._velocity.setAll(0);
-        if(this._move.x != 0){
+        if (this._move.x != 0) {
             this._velocity.addInPlace(this._mesh.forward.scale(this._move.x));
         }
-        if(this._move.y != 0){
+        if (this._move.y != 0) {
             this._velocity.addInPlace(this._mesh.up.scale(this._move.y));
         }
-        if(this._move.z != 0){
+        if (this._move.z != 0) {
             this._velocity.addInPlace(this._mesh.right.scale(this._move.z));
         }
-        this._velocity.normalize().scale(this._speed);
+        this._velocity.normalize().scaleInPlace(this._speed);
         //console.log(this._velocity);
     }
 
-    private ApplyRotations(){
+    private ApplyRotations() {
         //Yaw
-        if(this._rotate.y != 0){
-            this._mesh.rotate(this._mesh.up, 0.1 * this._rotate.y, BABYLON.Space.WORLD);
+        if (this._rotate.y != 0) {
+            this._mesh.rotate(this._mesh.up, this._rotation_speed * this._rotate.y, BABYLON.Space.LOCAL);
         }
         //Pitch
-        if(this._rotate.z != 0){
-            this._mesh.rotate(this._mesh.right, 0.1 * this._rotate.z, BABYLON.Space.WORLD);
+        if (this._rotate.z != 0) {
+            this._mesh.rotate(this._mesh.right, this._rotation_speed * this._rotate.z, BABYLON.Space.LOCAL);
         }
         //Roll
-        if(this._rotate.x != 0){
-            this._mesh.rotate(this._mesh.forward, 0.1 * this._rotate.x, BABYLON.Space.WORLD);
+        if (this._rotate.x != 0) {
+            this._mesh.rotate(this._mesh.forward, this._rotation_speed * this._rotate.x, BABYLON.Space.LOCAL);
         }
     }
 
+    public CalculateNextPosition(): Vector3 {
+        this.UpdateRelativeMovement();
+        return this._mesh.position.add(this._velocity);
+    }
 
-
-    public Update(scene:Scene, event:EventState){
+    public Update(scene: Scene) {
         this.ApplyRotations();
-        this.ApplyMove();
-        
-        
-        //Check that we aren't moving into something
-        let ray = new Ray(this._mesh.position,this._velocity, 3);
-        const mesh = scene.pickWithRay(ray,(m)=>m!=this._mesh);
-        if(mesh != null && mesh.pickedMesh != null){
-            return; // don't move
-        }
-
-        //Check that we havent somehow wound up in a wall
-        const next = this._mesh.position.add(this._velocity);
-        const walls = this._maze.GetWalls(next);
-        if(walls != null){
-            const wall = walls.find(wall=>wall.intersectsPoint(next));
-            if(wall != undefined){
-                return; //don't move
-            }
-        }
-
         //Move our mesh
-        this._mesh.position.copyFrom(next);
-    }
+        this._mesh.position.addInPlace(this._velocity);
+        this._sensors.forEach(sensor => sensor.Update(scene));
 
+    }
 }
