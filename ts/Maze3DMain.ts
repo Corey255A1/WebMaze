@@ -1,8 +1,7 @@
-import { ArcRotateCamera, DirectionalLight, Engine, EventState, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Ray, RuntimeError, Scene, TubeBuilder, UniversalCamera, Vector3, WebXRState } from "babylonjs";
+import { ArcRotateCamera, Camera, DirectionalLight, Engine, EventState, FollowCamera, HemisphericLight, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Ray, RuntimeError, Scene, TubeBuilder, UniversalCamera, Vector3, WebXRState } from "babylonjs";
 import { Maze } from "./Maze";
 import { Maze3D } from "./Maze3D";
 import { Maze3DPlayer } from "./Maze3DPlayer";
-import { Sensor } from "./Sensor";
 export class Maze3DMain{
     private _maze:Maze | null;
     private _maze_renderer:Maze3D | null;
@@ -11,7 +10,7 @@ export class Maze3DMain{
     private _engine:Engine;
     private _canvas:HTMLCanvasElement;
     //private _camera:UniversalCamera;
-    private _camera:ArcRotateCamera;
+    private _camera:Camera;
     //private _camera:FollowCamera;
     private _player:Maze3DPlayer;
     constructor(canvas_id:string){
@@ -46,16 +45,19 @@ export class Maze3DMain{
         this._camera.attachControl(true);
         this._camera.lockedTarget = this._player.Mesh;
         */
+
         //Arc Rotate
-        
-        this._camera = new ArcRotateCamera("Camera", Math.PI / 2, -Math.PI, 15, this._player.Mesh.position, this._scene);
-        this._camera.attachControl(this._canvas, true);
-        this._camera.lowerRadiusLimit = 10;
-        this._camera.upperRadiusLimit = 20;
+        const camera = new ArcRotateCamera("Camera", Math.PI / 2, -Math.PI, 15, this._player.Mesh.position, this._scene);
+        camera.attachControl(this._canvas, true);
+        camera.lowerRadiusLimit = 10;
+        camera.upperRadiusLimit = 30;
         
         //Give the Camera its own position since we are setting its parent to the mesh...
-        //this._camera = new UniversalCamera("first_person", this._player.Mesh.position.clone(), this._scene);
-        //this._camera.parent = this._player.Mesh;
+        //const camera = new UniversalCamera("first_person", this._player.Mesh.position.clone(), this._scene);
+        //camera.parent = this._player.Mesh;
+
+
+        this._camera = camera;
 
         // Attach the camera to the canvas
         
@@ -81,12 +83,12 @@ export class Maze3DMain{
     public ProcessKeyboard(keyboard_info:KeyboardInfo){
         const keydown:boolean = keyboard_info.type == KeyboardEventTypes.KEYDOWN;
         switch(keyboard_info.event.key.toLowerCase()){
-            case "w":this._player.MoveForward(keydown); break;
-            case "d":this._player.MoveRight(keydown); break;
-            case "s":this._player.MoveBackward(keydown); break;
-            case "a":this._player.MoveLeft(keydown); break;
-            case "i":this._player.TurnLeft(keydown); break;
-            case "p":this._player.TurnRight(keydown); break;
+            case "w":this._player.Move(keydown?1:0); break;
+            case "d":this._player.Slide(keydown?1:0); break;
+            case "s":this._player.Move(keydown?-1:0); break;
+            case "a":this._player.Slide(keydown?-1:0); break;
+            case "i":this._player.Turn(keydown?-1:0); break;
+            case "p":this._player.Turn(keydown?1:0); break;
         }
     }
     
@@ -95,25 +97,29 @@ export class Maze3DMain{
             const next = this._player.CalculateNextPosition();
             const senors = this._player.Sensors;
             if(senors[1].Distance > 5){
-                this._player.TurnRight(true);
+                this._player.Turn(1);
             }
-            else if(senors[1].Distance >= senors[2].Distance - 0.1 || senors[1].Distance <= senors[2].Distance + 0.1)
+            else if(senors[1].Distance >= senors[2].Distance - 0.5 || senors[1].Distance <= senors[2].Distance + 0.5)
             {
-                this._player.TurnRight(false);
+                this._player.Turn(1);
             }
             if(senors[0].Distance > 5){
                 
-                if(senors[1].Distance < 2){
-                    this._player.TurnLeft(true);
-                }else if(senors[3].Distance < 2){
-                    this._player.TurnRight(true);
+                if(senors[1].Distance < 4){
+                    this._player.Turn(-1);
+                }else if(senors[3].Distance < 4){
+                    this._player.Turn(1);
                 }
 
-                this._player.MoveForward(true);
+                this._player.Move(1);
                 
             }else{
-                this._player.TurnLeft(true);
-                this._player.MoveForward(false);
+                this._player.Turn(-1);
+                this._player.Move(0);
+            }
+            const walls = this._maze_renderer.GetWalls(this._player.Position);
+            if(walls != null){
+                walls.forEach(wall=>wall.Highlight(true));
             }
             //let ray = new Ray(this._player.Position,this._player.Velocity, 1.5);
             //const mesh = scene.pickWithRay(ray,(m)=>m!=this._player.Mesh);

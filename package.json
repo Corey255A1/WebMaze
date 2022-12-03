@@ -4,7 +4,7 @@
   "description": "3D VR Maze",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "webpack-dev-server --https"
   },
   "author": "",
   "license": "ISC",

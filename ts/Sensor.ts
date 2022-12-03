@@ -24,7 +24,6 @@ export class Sensor{
         return mesh.name != 'ray' && this._mesh != mesh;
     }
     public Update(scene:Scene){
-        this._mesh.computeWorldMatrix(true);
         this._ray.direction = this._relative_direction.applyRotationQuaternion(Quaternion.RotationQuaternionFromAxis(this._mesh.right, this._mesh.up, this._mesh.forward));
         this._ray.origin = Vector3.TransformCoordinates(this._offset, this._mesh.getWorldMatrix());
         this._last_picked = scene.pickWithRay(this._ray,this.FilterMesh.bind(this));

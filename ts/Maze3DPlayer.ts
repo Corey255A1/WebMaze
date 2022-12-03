@@ -10,26 +10,34 @@ export class Maze3DPlayer {
     private _speed: number;
     private _rotation_speed: number
     private _sensors: Array<Sensor>;
+    private _sensor_length: number;
+    private _running_goal: boolean;
+    private _goal_value: number;
 
     constructor(maze: Maze3D) {
-        this._speed = 0.5;
-        this._rotation_speed = 0.2;
+        this._speed = 0.3;
+        this._rotation_speed = 0.1;
+        this._sensor_length = 6;
         this._mesh = MeshBuilder.CreateBox('player', { size: 1 })//MeshBuilder.CreateSphere('player',{diameter:1});
         this._mesh.position.y = 2;
         this._rotate = new Vector3(0, 0, 0);
         this._move = new Vector3(0, 0, 0);
         this._velocity = new Vector3(0, 0, 0);
+        // Room for improvement... goal manager;
+        this._running_goal = false;
+        this._goal_value = 0;
+
         this._sensors = [
             //Front
-            new Sensor(this._mesh, new Vector3(0, 0, 0), new Vector3(0, 0, 1), 6),
+            new Sensor(this._mesh, new Vector3(0, 0, 0), new Vector3(0, 0, 1), this._sensor_length),
 
             //Right
-            new Sensor(this._mesh, new Vector3(-0.5, 0, 0.5), new Vector3(1, 0, 0), 6),
-            new Sensor(this._mesh, new Vector3(-0.5, 0, -0.5), new Vector3(1, 0, 0), 6),
+            new Sensor(this._mesh, new Vector3(-0.5, 0, 0.5), new Vector3(1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(-0.5, 0, -0.5), new Vector3(1, 0, 0), this._sensor_length),
 
             //Left
-            new Sensor(this._mesh, new Vector3(0.5, 0, 0.5), new Vector3(-1, 0, 0), 6),
-            new Sensor(this._mesh, new Vector3(0.5, 0, -0.5), new Vector3(-1, 0, 0), 6),
+            new Sensor(this._mesh, new Vector3(0.5, 0, 0.5), new Vector3(-1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(0.5, 0, -0.5), new Vector3(-1, 0, 0), this._sensor_length),
         ];
     }
     public get Sensors(): Array<Sensor> { return this._sensors; }
@@ -40,23 +48,19 @@ export class Maze3DPlayer {
         return this._mesh;
     }
 
-    public MoveForward(move: boolean) {
-        this._move.x = move ? 1 : 0;
+    public Move(move: number) {
+        this._move.x = move > 0 ? 1 : move == 0 ? 0 : -1;
     }
-    public MoveBackward(move: boolean) {
-        this._move.x = move ? -1 : 0;
+    public Slide(move: number) {
+        this._move.z = move > 0 ? 1 : move == 0 ? 0 : -1;
     }
-    public MoveRight(move: boolean) {
-        this._move.z = move ? 1 : 0;
+    public Turn(move: number) {
+        this._rotate.y = move > 0 ? 1 : move == 0 ? 0 : -1;
     }
-    public MoveLeft(move: boolean) {
-        this._move.z = move ? -1 : 0;
-    }
-    public TurnRight(move: boolean) {
-        this._rotate.y = move ? 1 : 0;
-    }
-    public TurnLeft(move: boolean) {
-        this._rotate.y = move ? -1 : 0;
+    public GoalTurn(radians: number) {
+        this._running_goal = true;
+        this._goal_value = radians;
+        this.Turn(radians);
     }
 
 
@@ -72,13 +76,15 @@ export class Maze3DPlayer {
             this._velocity.addInPlace(this._mesh.right.scale(this._move.z));
         }
         this._velocity.normalize().scaleInPlace(this._speed);
-        //console.log(this._velocity);
     }
 
     private ApplyRotations() {
         //Yaw
         if (this._rotate.y != 0) {
             this._mesh.rotate(this._mesh.up, this._rotation_speed * this._rotate.y, BABYLON.Space.LOCAL);
+            if (this._running_goal) {
+                this._goal_value -= this._rotation_speed;
+            }
         }
         //Pitch
         if (this._rotate.z != 0) {
@@ -99,6 +105,8 @@ export class Maze3DPlayer {
         this.ApplyRotations();
         //Move our mesh
         this._mesh.position.addInPlace(this._velocity);
+
+        this._mesh.computeWorldMatrix(true);
         this._sensors.forEach(sensor => sensor.Update(scene));
 
     }
