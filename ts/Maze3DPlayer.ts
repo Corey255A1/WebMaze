@@ -1,4 +1,6 @@
-import { Axis, EventState, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Quaternion, Ray, Scene, UniversalCamera, Vector3 } from "babylonjs";
+//Corey Wunderlich 2022
+//https://www.wundervisionenvisionthefuture.com/
+import { Mesh, MeshBuilder, Scene, Vector3 } from "babylonjs";
 import { Maze3D } from "./Maze3D";
 import { Sensor } from "./Sensor";
 

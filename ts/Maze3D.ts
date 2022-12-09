@@ -1,3 +1,5 @@
+//Corey Wunderlich 2022
+//https://www.wundervisionenvisionthefuture.com/
 import { Maze } from "./Maze";
 import { Axis, Color3, Material, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "babylonjs";
 import { MazeCell, MazeWall } from "./MazeCell";
