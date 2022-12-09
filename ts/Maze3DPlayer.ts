@@ -1,7 +1,6 @@
 //Corey Wunderlich 2022
 //https://www.wundervisionenvisionthefuture.com/
-import { Mesh, MeshBuilder, Scene, Vector3 } from "babylonjs";
-import { Maze3D } from "./Maze3D";
+import { Mesh, Vector3, Scene, Space } from "@babylonjs/core";
 import { Sensor } from "./Sensor";
 
 export class Maze3DPlayer {
@@ -16,12 +15,13 @@ export class Maze3DPlayer {
     private _running_goal: boolean;
     private _goal_value: number;
 
-    constructor(maze: Maze3D) {
+    constructor(mesh:Mesh) {
         this._speed = 0.3;
         this._rotation_speed = 0.1;
         this._sensor_length = 6;
-        this._mesh = MeshBuilder.CreateBox('player', { size: 1 })//MeshBuilder.CreateSphere('player',{diameter:1});
-        this._mesh.position.y = 2;
+        this._mesh = mesh;
+        //this._mesh = MeshBuilder.CreateBox('player', { size: 1 })//MeshBuilder.CreateSphere('player',{diameter:1});
+        //this._mesh.position.y = 2;
         this._rotate = new Vector3(0, 0, 0);
         this._move = new Vector3(0, 0, 0);
         this._velocity = new Vector3(0, 0, 0);
@@ -31,15 +31,15 @@ export class Maze3DPlayer {
 
         this._sensors = [
             //Front
-            new Sensor(this._mesh, new Vector3(0, 0, 0), new Vector3(0, 0, 1), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(0, 0, 2), new Vector3(0, 0, 1), this._sensor_length),
 
             //Right
-            new Sensor(this._mesh, new Vector3(-0.5, 0, 0.5), new Vector3(1, 0, 0), this._sensor_length),
-            new Sensor(this._mesh, new Vector3(-0.5, 0, -0.5), new Vector3(1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(-1.5, 0, 2), new Vector3(1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(-1.5, 0, -2), new Vector3(1, 0, 0), this._sensor_length),
 
             //Left
-            new Sensor(this._mesh, new Vector3(0.5, 0, 0.5), new Vector3(-1, 0, 0), this._sensor_length),
-            new Sensor(this._mesh, new Vector3(0.5, 0, -0.5), new Vector3(-1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(1.5, 0, 2), new Vector3(-1, 0, 0), this._sensor_length),
+            new Sensor(this._mesh, new Vector3(1.5, 0, -2), new Vector3(-1, 0, 0), this._sensor_length),
         ];
     }
     public get Sensors(): Array<Sensor> { return this._sensors; }
@@ -83,18 +83,18 @@ export class Maze3DPlayer {
     private ApplyRotations() {
         //Yaw
         if (this._rotate.y != 0) {
-            this._mesh.rotate(this._mesh.up, this._rotation_speed * this._rotate.y, BABYLON.Space.LOCAL);
+            this._mesh.rotate(this._mesh.up, this._rotation_speed * this._rotate.y, Space.LOCAL);
             if (this._running_goal) {
                 this._goal_value -= this._rotation_speed;
             }
         }
         //Pitch
         if (this._rotate.z != 0) {
-            this._mesh.rotate(this._mesh.right, this._rotation_speed * this._rotate.z, BABYLON.Space.LOCAL);
+            this._mesh.rotate(this._mesh.right, this._rotation_speed * this._rotate.z, Space.LOCAL);
         }
         //Roll
         if (this._rotate.x != 0) {
-            this._mesh.rotate(this._mesh.forward, this._rotation_speed * this._rotate.x, BABYLON.Space.LOCAL);
+            this._mesh.rotate(this._mesh.forward, this._rotation_speed * this._rotate.x, Space.LOCAL);
         }
     }
 

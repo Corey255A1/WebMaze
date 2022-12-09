@@ -1,9 +1,9 @@
 //Corey Wunderlich 2022
 //https://www.wundervisionenvisionthefuture.com/
 import { Maze } from "./Maze";
-import { Axis, Color3, Material, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "babylonjs";
 import { MazeCell, MazeWall } from "./MazeCell";
 import { Maze3DWall } from "./Maze3DWall";
+import { Axis, Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 export class Maze3D {
     private _maze: Maze;
     private _scene: Scene;

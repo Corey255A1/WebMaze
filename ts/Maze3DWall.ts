@@ -1,6 +1,7 @@
 //Corey Wunderlich 2022
 //https://www.wundervisionenvisionthefuture.com/
-import { Material, Mesh, MeshBuilder, StandardMaterial } from "babylonjs";
+
+import { Mesh, Material, MeshBuilder } from "@babylonjs/core";
 
 export class Maze3DWall {
     private _mesh: Mesh;
